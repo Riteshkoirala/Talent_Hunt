@@ -10,8 +10,8 @@
         <form action="{{ route('dashboard') }}" method="get">
             <select name="location">
                 <option value=" ">Choose Location</option>
-                @foreach($location as $loca)
-                    <option value="{{ $loca->location }}">{{ $loca->location }} </option>
+                @foreach($location as $local)
+                    <option value="{{ $local }}">{{ $local }} </option>
                 @endforeach
             </select><br>
             <select name="company">

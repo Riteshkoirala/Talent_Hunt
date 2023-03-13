@@ -6,6 +6,10 @@
         <div class="text">
             <div class="logs">
                 <h2>SIGN UP</h2>
+
+                @if( session('errors'))
+                    {{ $errors }}
+                @endif
                 <form action="{{ route('register') }}" method="post">
                     @csrf
                     <input type="email" name="email" placeholder="johndoe@gmail.com">

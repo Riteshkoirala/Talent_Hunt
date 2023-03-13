@@ -23,17 +23,18 @@ class SeekerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'firstname' => 'required',
-            'lastname' => 'required',
-            'location' => 'required',
-            'contact_number' => 'required',
-            'qualification' => 'required',
-            'image'=>'required',
-            'cv'=>'required',
-            'college'=>'required',
-            'about'=>'required',
-            'description'=>'required',
-            'experience'=>'required',
+            'firstname' => 'max:40',
+            'lastname' => 'max:40',
+            'location' => 'regex:/^[a-zA-Z0-9\-, ]+$/',
+            'contact_number' => 'regex:/^[0-9\+]+$/',
+            'skill' => 'min:3',
+            'qualification' => 'max:200',
+            'image'=>'max:60000',
+            'cv'=>'max:60000',
+            'college'=>'max:100',
+            'about'=>'max:200',
+            'description'=>'max:200',
+            'experience'=>'max:200',
         ];
     }
 }

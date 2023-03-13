@@ -47,7 +47,7 @@
         </div>
         <div class="detail">
             <h2>Why Are You Searching For JOb:</h2>
-            <p>Beacuse, I love it.</p>
+            <p>{{ $profile->description }}</p>
 
         </div>
         <a href="/cv/{{ $profile->cv }}" download>download cv</a><tb>

@@ -19,7 +19,7 @@
                     @endforeach
                 </div><br>
                 <p>Job Types: </p>
-                <select class="type" name="type" >
+                <select class="type" name="type_id" >
                     <option value="{{ $post->type_id }}">{{ $post->jobType->name }}</option>
                     @foreach($types as $type)
                         <option value="{{ $type->id }}">{{ $type->name }}</option>

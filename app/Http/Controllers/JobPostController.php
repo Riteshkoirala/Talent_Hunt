@@ -3,45 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\JobPostRequest;
+use App\Http\Services\LocationSeparator;
 use App\Models\JobPost;
 use App\Models\JobType;
 use App\Models\RecruiterProfile;
 use App\Models\skill;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class JobPostController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(): View
     {
+
         $logUser = RecruiterProfile::where('user_id',Auth::user()->id)->first();
 
+        if ($logUser) {
+            $postData = JobPost::where('recruiter_id', $logUser->id)
+                ->with('recruiterProfile','postSkill', 'jobType')
+                ->latest('created_at')
+                ->paginate(5);
 
-            if (!$logUser) {
-                return view('recruiter.profile.create');
-            } else {
-                $postData = JobPost::where('recruiter_id', $logUser->id)
-                    ->with('recruiterProfile','postSkill', 'jobType')
-                    ->latest('created_at')
-                    ->paginate(5);
-
-                return view('recruiter.post.dashboard', [
-                    'posts' => $postData,
-                ]);
-            }
+            return view('recruiter.post.dashboard', [
+                'posts' => $postData,
+            ]);
+        }
+        return view('recruiter.profile.create');
     }
-
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-
         $skills = skill::get();
         $types = JobType::get();
 
@@ -55,40 +53,29 @@ class JobPostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(JobPostRequest $request)
+    public function store(JobPostRequest $request, LocationSeparator $locationSeparator):RedirectResponse
     {
 
-        $recruiterid = RecruiterProfile::where('user_id',Auth::User()->id)->first();
+        $recruiterId = RecruiterProfile::where('user_id',Auth::User()->id)->first();
 
-        $request->validated();
+        $location = $locationSeparator->LocationPurifier($request->location);
 
-        $post = JobPost::create([
-            'uuid'=>Str::uuid(),
-            'recruiter_id'=>$recruiterid->id,
-            'title'=>$request->title,
-            'location'=>$request->location,
-            'deadline'=>$request->deadline,
-            'type_id'=>$request->type,
-            'qualification'=>$request->qualification,
-            'experience'=>$request->experience,
-            'vacancy'=>$request->vacancy,
-            'description'=>$request->description,
-            'responsibility'=>$request->responsibility,
-            'benefit'=>$request->benefit,
-        ]);
+        $postData = $request->validated();
+        $postData['uuid'] = Str::uuid();
+        $postData['recruiter_id'] = $recruiterId->id;
+        $postData['location'] = $location;
 
-        foreach ($request->skill as $skillId) {
-            $post->postSkill()->attach($skillId);
-        }
+        $post = JobPost::create($postData);
+        $post->postSkill()->sync($request->skill);
 
-        Session::flash('message','The post has successfully been added' );
-        return redirect()->route('jobs.index');
+
+        return redirect()->route('jobs.index')->with('message','The post has successfully been added');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $uuid)
+    public function show(string $uuid): View
     {
         $posts = JobPost::where('uuid',$uuid)
             ->with('recruiterProfile','jobType', 'postSkill')
@@ -103,7 +90,7 @@ class JobPostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id):View
     {
         $skills = Skill::get();
         $types = JobType::get();
@@ -124,33 +111,21 @@ class JobPostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(JobPostRequest $request, string $id)
+    public function update(JobPostRequest $request, string $id, LocationSeparator $locationSeparator):RedirectResponse
     {
-        $request->validated();
 
-        $uuid = JobPost::find($id);
         $post = JobPost::findOrFail($id);
-        $post->update([
-            'title'=>$request->title,
-            'location'=>$request->location,
-            'deadline'=>$request->deadline,
-            'type_id'=>$request->type,
-            'qualification'=>$request->qualification,
-            'experience'=>$request->experience,
-            'vacancy'=>$request->vacancy,
-            'description'=>$request->description,
-            'responsibility'=>$request->responsibility,
-            'benefit'=>$request->benefit,
-        ]);
 
-        $post->postSkill()->detach();
-        if ($request->has('skill')) {
-            foreach ($request->input('skill') as $skillId) {
-                $post->postSkill()->attach($skillId);
-            }
-        }
+        $location = $locationSeparator->LocationPurifier($request->location);
 
-        return redirect()->route('jobs.show', $uuid->uuid);
+        $postData = $request->validated();
+        $postData['location'] = $location;
+
+        $post->update($postData);
+
+        $post->postSkill()->sync($request->skill);
+
+        return redirect()->route('jobs.show', $post->uuid);
 
     }
 

@@ -24,17 +24,17 @@ class JobPostRequest extends FormRequest
     {
 
         return [
-            'title'=>'required',
-            'location'=>'required',
-            'deadline'=>'required',
-            'skill'=>'required',
-            'type'=>'required',
-            'qualification'=>'required',
-            'experience'=>'required',
+            'title'=>'max:50',
+            'location' => 'regex:/^[a-zA-Z0-9\-, ]+$/',
+            'deadline'=>'after_or_equal:now',
+            'skill'=>'min:3',
+            'type_id'=>'required',
+            'qualification'=>'max:100',
+            'experience'=>'max:200',
             'vacancy'=>'required',
-            'description'=>'required',
-            'responsibility'=>'required',
-            'benefit'=>'required',
+            'description'=>'max:200',
+            'responsibility'=>'max:200',
+            'benefit'=>'max:200',
         ];
     }
 }

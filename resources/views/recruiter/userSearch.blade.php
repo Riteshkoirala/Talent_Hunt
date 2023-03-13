@@ -10,8 +10,8 @@
                 <form action="{{ route('user.search') }}" method="get">
                     <select name="location">
                         <option value=" ">Choose Location</option>
-                        @foreach($seekers as $seeker)
-                        <option value="{{ $seeker->location }}">{{ $seeker->location }}</option>
+                        @foreach($location as $seeker)
+                        <option value="{{ $seeker }}">{{ $seeker }}</option>
                         @endforeach
                     </select><br>
                     <select name="college">

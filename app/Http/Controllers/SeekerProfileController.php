@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SeekerRequest;
+use App\Http\Services\FileCheck;
+use App\Http\Services\LocationSeparator;
 use App\Models\SeekerProfile;
 use App\Models\skill;
-use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class SeekerProfileController extends Controller
 {
@@ -21,7 +24,7 @@ class SeekerProfileController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
         $skills = skill::get();
         return view('seeker.profile.create',
@@ -33,64 +36,62 @@ class SeekerProfileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(SeekerRequest $request)
+    public function store(SeekerRequest $request, FileCheck $fileCheck, LocationSeparator $locationSeparator): RedirectResponse
     {
-        $request->validated();
-        $imageName= '';
-        $cvname = '';
-        if ($request->file('image')) {
-            $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
-            $file->move(public_path('images/seeker'), $filename);
-            $imageName= $filename;
-        }
+
+        $seekerData = $request->validated();
+
         if ($request->file('cv')) {
-            $file = $request->file('cv');
-            $filename = $file->getClientOriginalName();
-            $file->move(public_path('cv'), $filename);
-            $cvname= $filename;
+            $cvName = $fileCheck->checkCv($request);
+            $seekerData['cv'] = $cvName;
         }
-        $seeker = SeekerProfile::create([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'user_id'=>Auth::user()->id,
-            'location' => $request->location,
-            'contact_number' => $request->contact_number,
-            'qualification' => $request->qualification,
-            'image'=>$imageName,
-            'cv'=>$cvname,
-            'college'=>$request->college,
-            'about'=>$request->about,
-            'description'=>$request->description,
-            'experience'=>$request->experience,
-        ]);
-        foreach ($request->skill as $skillId) {
-            $seeker->skill()->attach($skillId);
+        if ($request->file('image')) {
+            $imageName = $fileCheck->checkPhoto($request);
+            $seekerData['image'] = $imageName;
         }
-        return redirect()->route('profiles.show',$seeker);
+
+        $location = $locationSeparator->LocationPurifier($request->location);
+        $seekerData['user_id'] = Auth::user()->id;
+        $seekerData['location'] = $location;
+
+        $seeker = SeekerProfile::query()->create($seekerData);
+
+        $seeker->skill()->sync($request->skill);
+
+        return redirect()->route('profiles.show', $seeker);
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show():View
     {
 
         $profile = SeekerProfile::where('user_id', Auth::user()->id)->with('user')->with('skill')->first();
-            return view('seeker.profile.show', [
-                'profile' => $profile,
+
+        if (!$profile){
+            $skills = skill::get();
+            return view('seeker.profile.create',[
+                'skills'=>$skills,
             ]);
+        }
+
+        return view('seeker.profile.show', [
+            'profile' => $profile,
+        ]);
 
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id): View
     {
         $skills = Skill::get();
         $profile = SeekerProfile::where('id',$id)->with('user')->first();
         $selectedSkills = $profile->skill->pluck('id')->toArray();
+
         return view('seeker.profile.update',[
             'profile'=>$profile,
             'skills'=>$skills,
@@ -101,53 +102,30 @@ class SeekerProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(SeekerRequest $request, string $id)
+    public function update(SeekerRequest $request, string $id, FileCheck $fileCheck, LocationSeparator $locationSeparator):RedirectResponse
     {
-        $request->validateD();
-        $imageName= '';
-        $cvname = '';
 
-        $proreq = SeekerProfile::where('id', $id)->find($id);
-        $imageName = $proreq->image;
-        $cvname = $proreq->cv;
-        if ($request->file('image')) {
-            $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
-            $file->move(public_path('images/seeker'), $filename);
-            $imageName= $filename;
-        }
-        if ($request->file('cv')) {
-            $file = $request->file('cv');
-            $filename = $file->getClientOriginalName();
-            $file->move(public_path('cv'), $filename);
-            $cvname= $filename;
-        }
         $seeker = SeekerProfile::findOrFail($id);
-        $user = User::findOrFail(Auth::user()->id);
+        $seekerData = $request->validated();
 
-        $seeker->update([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'location' => $request->location,
-            'contact_number' => $request->contact_number,
-            'qualification' => $request->qualification,
-            'image'=>$imageName,
-            'cv'=>$cvname,
-            'college'=>$request->college,
-            'about'=>$request->about,
-            'experience'=>$request->experience,
-            'status'=>$request->status,
-        ]);
-        $user->update([
+        if ($request->hasFile('cv')) {
+            $cvName = $fileCheck->checkCv($request);
+            $seekerData['cv'] = $cvName;
+        }
+        if ($request->hasFile('image')) {
+            $imageName = $fileCheck->checkPhoto($request);
+            $seekerData['image'] = $imageName;
+        }
+
+        $location = $locationSeparator->LocationPurifier($request->location);
+        $seekerData['location'] = $location;
+        $seeker->update($seekerData);
+
+        $seeker->user->update([
            'email'=>$request->email,
         ]);
-        $seeker->skill()->detach();
-        // Attach selected skills from request
-        if ($request->has('skill')) {
-            foreach ($request->input('skill') as $skillId) {
-                $seeker->skill()->attach($skillId);
-            }
-        }
+
+        $seeker->skill()->sync($request->input('skill', []));
         return redirect()->route('profiles.show', $seeker);
     }
 
@@ -159,7 +137,5 @@ class SeekerProfileController extends Controller
         //
     }
 
-    public function checkcv(){
 
-    }
 }

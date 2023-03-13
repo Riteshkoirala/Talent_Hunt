@@ -6,7 +6,10 @@
         <div class="text">
             <div class="logs">
                 <h3>What are you looking into.</h3>
-                <form action="{{ route('signUp') }}" method="post">
+                @isset($message)
+                    {{ $message }}
+                @endisset
+                <form action="{{ route('signUp') }}" method="get">
                     @csrf
 
                     <select name="role">

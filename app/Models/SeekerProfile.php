@@ -28,6 +28,7 @@ class SeekerProfile extends Model
         'status',
     ];
 
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

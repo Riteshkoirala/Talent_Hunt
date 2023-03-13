@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RecruiterRequest;
+use App\Http\Services\FileCheck;
+use App\Http\Services\LocationSeparator;
 use App\Models\RecruiterProfile;
-use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 class RecruiterProfileController extends Controller
@@ -16,6 +18,9 @@ class RecruiterProfileController extends Controller
     {
         $profile = RecruiterProfile::where('user_id', Auth::user()->id)->first();
 
+        if(!$profile){
+            return view('recruiter.profile.create');
+        }
             return view('recruiter.profile.show', [
                 'profile' => $profile,
             ]);
@@ -23,44 +28,27 @@ class RecruiterProfileController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(RecruiterRequest $request)
+    public function store(RecruiterRequest $request, FileCheck $fileCheck, LocationSeparator $locationSeparator): RedirectResponse
     {
-        $request->validated();
         $imageName= '';
+
         if ($request->file('image')) {
-            $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
-            $file->move(public_path('images/recruiter'), $filename);
-            $imageName= $filename;
+            $imageName = $fileCheck->checkPhoto($request);
         }
-        $recruiter = RecruiterProfile::create([
-            'user_id' => Auth::user()->id,
-            'company_name' => $request->company_name,
-            'location' => $request->location,
-            'contact_number' => $request->contact_number,
-            'image' => $imageName,
-            'detail' => $request->detail,
-        ]);
+
+        $location = $locationSeparator->LocationPurifier($request->location);
+
+        $recruiterData = $request->validated();
+
+        $recruiterData['user_id'] = Auth::user()->id;
+        $recruiterData['location'] = $location;
+        $recruiterData['image'] = $imageName;
+
+        $recruiter = RecruiterProfile::query()->create($recruiterData);
 
         return redirect()->route('profile.index');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -77,30 +65,25 @@ class RecruiterProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(RecruiterRequest $request, string $id)
+    public function update(RecruiterRequest $request, string $id, FileCheck $fileCheck, LocationSeparator $locationSeparator):RedirectResponse
     {
-        $request->validated();
+        $recruiterData = $request->validated();
 
-        $imageName= '';
-        $recruiter = RecruiterProfile::where('id',$id)->first();
-        $imageName = $recruiter->image;
-        if ($request->file('image')) {
-            $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
-            $file->move(public_path('images/recruiter'), $filename);
-            $imageName= $filename;
+        if ($request->hasFile('image')) {
+            $imageName = $fileCheck->checkPhoto($request);
+            $recruiterData['image'] = $imageName;
         }
+
         $profile = RecruiterProfile::findOrFail($id);
-        $user = User::findOrFail(Auth::user()->id);
-        $user->update([
-           'email'=>$request->email,
-        ]);
-        $profile->update([
-            'company_name' => $request->company_name,
-            'location' => $request->location,
-            'contact_number' => $request->contact_number,
-            'image' => $imageName,
-            'detail' => $request->detail,
+
+        $location = $locationSeparator->LocationPurifier($request->location);
+
+        $recruiterData['user_id'] = Auth::user()->id;
+        $recruiterData['location'] = $location;
+        $profile->update($recruiterData);
+
+        $profile->user->update([
+            'email'=>$request->email,
         ]);
 
         return redirect()->route('profile.index');

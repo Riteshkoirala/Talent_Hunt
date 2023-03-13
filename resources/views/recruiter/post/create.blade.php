@@ -7,22 +7,31 @@
         <form action="{{ route('jobs.store') }}" method="post">
             @method('post')
             @csrf
-            <p>Title: </p><input type="text" name="title" placeholder="job Title">            <p>@error('title') {{ $message }}@enderror</p>
+            <p>Title: </p><input type="text" name="title" placeholder="job Title" value="{{ old('title') }}">            <p>@error('title') {{ $message }}@enderror</p>
             <br><br>
-            <p>Location: </p> <input type="text" name="location" placeholder="company location">            <p>@error('location') {{ $message }}@enderror</p>
+            <p>Location: </p> <input type="text" name="location" placeholder="company location" value="{{ old('location') }}">            <p>@error('location') {{ $message }}@enderror</p>
             <br><br>
-            <p>Deadline: </p> <input type="datetime-local" name="deadline"  value="2023-06-01T01:10">            <p>@error('deadline') {{ $message }}@enderror</p>
+            <p>Deadline: </p> <input type="datetime-local" name="deadline"  value="{{ old('deadline') }}">            <p>@error('deadline') {{ $message }}@enderror</p>
             <br><br>
             <p>Skills Required: </p><div class="double">
                     @foreach($skills as $skill)
                     <input type="checkbox" name="skill[]" value="{{ $skill->id }}"><label>{{ $skill->name }}</label>
                 @endforeach
-            </div><br>
+            </div>
+            @error('skill')
+            {{ $message }}
+            @enderror
+            <br>
             <p>Job Types: </p>
-            <select class="type" name="type">
-                @foreach($types as $type)
+            <select class="type" name="type_id" >
+                <option value="">Choose Job-Type</option>
+            @foreach($types as $type)
                     <option value="{{ $type->id }}">{{ $type->name }}</option>
-                @endforeach                </select><br><br>
+                @endforeach
+            </select>
+            @error('type_id')
+            {{ $message }}
+            @enderror<br><br>
             <p>Qualification: </p> <input type="text" name="qualification" placeholder="Qualification" >            <p>@error('qualification') {{ $message }}@enderror</p>
             <br><br>
             <p>Experience: </p> <input type="text" name="experience" placeholder="Experience">            <p>@error('experience') {{ $message }}@enderror</p>

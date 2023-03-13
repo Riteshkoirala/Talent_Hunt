@@ -56,11 +56,13 @@ Route::post('googleIn',[GoogleSigninController::class, 'update'])->name('googleI
 
 Route::get('roles',[GoogleSigninController::class, 'create'])->name('create');
 
-Route::post('googles',[GoogleSigninController::class, 'signUpGoogle'])->name('signUp');
+Route::get('googles',[GoogleSigninController::class, 'signUpGoogle'])->name('signUp');
+
+Route::get('SignIn',[GoogleSigninController::class, 'signInGoogle'])->name('signIn');
+
 
 Route::get('google',[GoogleSigninController::class, 'getData'])->name('google');
 
-Route::get('SignIn',[GoogleSigninController::class, 'signInGoogle'])->name('signIn');
 
 
 

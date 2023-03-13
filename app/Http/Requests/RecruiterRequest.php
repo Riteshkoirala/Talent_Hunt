@@ -23,11 +23,13 @@ class RecruiterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_name' => 'required',
-            'location' => 'required',
-            'contact_number' => 'required',
-            'image' => 'required',
-            'detail' => 'required',
+            'company_name' => 'min:5 | max:50',
+           'contact_number' => 'regex:/^[0-9\+]+$/',
+           'location' => 'regex:/^[a-zA-Z0-9\-, ]+$/',
+            'image' => 'max:60000',
+            'detail' => 'max:200',
         ];
     }
+
+
 }

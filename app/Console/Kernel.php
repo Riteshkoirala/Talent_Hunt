@@ -13,15 +13,21 @@ class Kernel extends ConsoleKernel
      * Define the application's command schedule.
      */
 
-    protected $commands = [
-        \Illuminate\Console\Scheduling\ScheduleRunCommand::class,
-        // other commands...
-    ];
+//    protected $commands = [
+//        \Illuminate\Console\Scheduling\ScheduleRunCommand::class,
+//        // other commands...
+//    ];
     protected function schedule(Schedule $schedule): void
     {
         $schedule->call(function () {
 
-            JobPost::where('deadline','<', now())->delete();
+            $getData = JobPost::where('deadline', '<',now())->get();
+
+            foreach ($getData as $data) {
+                $data->postSkill()->detach();
+                $data->application()->delete();
+                $data->delete();
+            }
 
         })->everyMinute();
 

@@ -3,7 +3,7 @@
 @section('content')
     <div class="contai">
         <div class="job_container">
-            <h1>UPDATE RECRUITER PROFILE</h1><br>
+            <h1>UPDATE YOUTR PROFILE</h1><br>
             <form action="{{ route('profiles.update',$profile->id) }}" method="post" enctype="multipart/form-data">
                 @method('put')
                 @csrf
@@ -23,10 +23,12 @@
                 </div><br>
                 <p>Highest Qualification: </p> <input type="text" name="qualification" placeholder="Qualification" value="{{ $profile->qualification }}">@error('qualification') {{ $message }} @enderror<br><br>
                 <p>College Name: </p> <input type="text" name="college" placeholder="college" value="{{ $profile->college }}">@error('college') {{ $message }} @enderror<br><br>
-                <p>Current Image: </p> <input type="file" name="image" >@error('image') {{ $message }} @enderror<br><br>
+                <p>Current Image:
+                <input type="file" name="image" id="image" value="{{ asset('images/seeker/back.jpg') }}">@error('image') {{ $message }} @enderror<br><br>
                 <p>CV: </p> <input type="file" name="cv" >@error('cv') {{ $message }} @enderror<br><br>
                 <p>About Yourself: </p> <textarea name="about" placeholder="Add about you here">{{ $profile->about }}</textarea>@error('about') {{ $message }} @enderror<br><br>
                 <p>Experience: </p> <textarea name="experience" placeholder="Add the job Experience here...">{{ $profile->experience }}</textarea>@error('experience') {{ $message }} @enderror<br><br>
+                <p>Why do you want to Join us: </p> <textarea name="description" placeholder="Add the job Experience here...">{{ $profile->description }}</textarea>@error('description') {{ $message }} @enderror<br><br>
                 <button type="submit" name="submit">Update Profile</button>
             </form>
         </div>

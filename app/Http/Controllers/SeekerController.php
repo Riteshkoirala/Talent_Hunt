@@ -2,25 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\LocationSeparator;
 use App\Models\JobPost;
 use App\Models\JobType;
 use App\Models\RecruiterProfile;
 use App\Models\SeekerProfile;
 use App\Models\skill;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class SeekerController extends Controller
 {
 
-    public function index(Request $request){
+    public function index(Request $request)
+    {
 
-        $logUser = SeekerProfile::where('user_id',Auth::user()->id)->first();
+        $logUser = SeekerProfile::where('user_id', Auth::user()->id)->first();
 
         $skill = Skill::get();
         $type = JobType::get();
         $company = RecruiterProfile::get();
-        $location = JobPost::select('location')->distinct()->get();
+        $seekers= JobPost::select('location')->distinct()->get();
+
+        $location = new LocationSeparator();
+        $uniqueLocations = $location->trim($seekers);
 
         if (!$logUser) {
             return redirect()->route('profiles.create');
@@ -32,16 +39,17 @@ class SeekerController extends Controller
                 'posts' => $postData,
                 'skill'=>$skill,
                 'type'=>$type,
-                'location'=>$location,
+                'location'=>$uniqueLocations,
                 'company'=>$company,
             ]);
-        }
+    }
 
-        public function filter($request){
+    public function filter($request){
 
-            $query = JobPost::with('recruiterProfile', 'postSkill', 'jobType')
+        $query = JobPost::with('recruiterProfile', 'postSkill', 'jobType')
                 ->when($request->location, function ($query, $location) {
-                    $query->where('location', $location);
+                    $get = new LocationSeparator();
+                    $get->finder($query, $location);
                 })
                 ->when($request->company, function ($query, $company) {
                     $query->whereHas('recruiterProfile', function ($query) use ($company) {
@@ -56,86 +64,6 @@ class SeekerController extends Controller
                         $query->where('id', $skill);
                     });
                 });
-
-            if ($request->location && $request->company) {
-                $query->whereHas('recruiterProfile', function ($query) use ($request) {
-                    $query->where('company_name', $request->company);
-
-                })->where('location', $request->location);
-            }
-
-            if ($request->type && $request->company) {
-                $query->whereHas('recruiterProfile', function ($query) use ($request) {
-                    $query->where('company_name', $request->company);
-
-                })->where('type_id', $request->type);
-            }
-            if ($request->skill && $request->company) {
-                $query->whereHas('postSkill', function ($query) use ($request) {
-                    $query->where('id', $request->skill);
-                })
-                    ->whereHas('recruiterProfile', function ($query) use ($request) {
-                        $query->where('company_name', $request->company);
-                    });
-            }
-            if ($request->location && $request->type) {
-                    $query->where('location', $request->location)
-                        ->where('type_id', $request->type);
-            }
-            if ($request->location && $request->skill) {
-                $query->whereHas('postSkill', function ($query) use ($request) {
-                    $query->where('id', $request->skill);
-                })
-                ->where('location', $request->location);
-
-            }
-            if ($request->type && $request->skill) {
-                $query->whereHas('postSkill', function ($query) use ($request) {
-                    $query->where('id', $request->skill);
-                })
-                ->where('type_id', $request->type);
-
-            }
-
-            if ($request->location && $request->company && $request->type) {
-                $query->whereHas('recruiterProfile', function ($query) use ($request) {
-                    $query->where('company_name', $request->company);
-                })
-                ->where('location', $request->location)
-                ->where('type_id', $request->type);
-            }
-
-            if ($request->skill && $request->company && $request->location) {
-                $query->whereHas('postSkill', function ($query) use ($request) {
-                    $query->where('id', $request->skill);
-                })
-                    ->whereHas('recruiterProfile', function ($query) use ($request) {
-                        $query->where('company_name', $request->company);
-                    })
-                    ->where('location', $request->location);
-            }
-            if ($request->skill && $request->company && $request->type) {
-                $query->whereHas('postSkill', function ($query) use ($request) {
-                    $query->where('id', $request->skill);
-                })
-                    ->whereHas('recruiterProfile', function ($query) use ($request) {
-                        $query->where('company_name', $request->company);
-
-
-                    })
-                    ->where('type_id', $request->type);
-            }
-
-            if ($request->location && $request->company && $request->skill && $request->type) {
-                $query->whereHas('postSkill', function ($query) use ($request) {
-                    $query->where('id', $request->skill);
-                })
-                    ->whereHas('recruiterProfile', function ($query) use ($request) {
-                        $query->where('company_name', $request->company);
-                    })
-                    ->where('location', $request->location)
-                    ->where('type_id', $request->type);
-            }
 
             return $query;
 

@@ -13,20 +13,26 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleSigninController extends Controller
 {
+
     public function signUpGoogle(Request $request){
 
-        session(['role' =>$request->role]);
+        $request->validate([
+            'role'=>'required',
+        ]);
+        $role = $request->role;
         return Socialite::driver('google')
+            ->with(['state' => 'value='.$role])
             ->redirect();
     }
     public function getData(Request $request)
     {
-        $user = Socialite::driver('google')->user();
+        $user = Socialite::driver('google')->stateless()->user();
         $email = $user->email;
 
-        if(!session('role')) {
-            $findUser = User::where('email', $email)->first();
+        $roles = $request->input('state');
+        parse_str($roles, $result);
 
+            $findUser = User::where('email', $email)->first();
             if ($findUser) {
                 Auth::login($findUser, true);
 
@@ -36,27 +42,17 @@ class GoogleSigninController extends Controller
                     return redirect()->intended(RouteServiceProvider::RECRUITER);
                 }
             }
-        }
+
         else {
 
-            $validator = Validator::make(
-                ['email' => $email],
-                ['email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class]],
-            );
-
-            if ($validator->fails()) {
-                $request->session()->forget('role');
-                $errors = $validator->errors();
-                foreach ($errors->all() as $error) {
-                    echo $error . '<br>';
-                }
-            } else {
+            if(!$result['value']){
+                return  view('auth.role')->with('message','You have not registered so register Yourself first');
+            }
                 $user = User::create([
                     'email' => $user->email,
                     'email_verified_at' => Carbon::now(),
-                    'role' => session('role'),
+                    'role' => $result['value'],
                 ]);
-                $request->session()->forget('role');
                 Auth::login($user, true);
 
                 if ($user->role == 'seeker') {
@@ -65,7 +61,7 @@ class GoogleSigninController extends Controller
                     return redirect()->intended(RouteServiceProvider::RECRUITER);
                 }
             }
-        }
+
     }
 
     public function create(){
@@ -75,6 +71,7 @@ class GoogleSigninController extends Controller
     public function signInGoogle(){
 
         return Socialite::driver('google')
+            ->with(['state' => 'value='])
             ->redirect();
     }
 
