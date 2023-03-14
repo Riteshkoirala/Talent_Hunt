@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Application extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'seeker_id',
@@ -18,7 +18,6 @@ class Application extends Model
         'status',
         'link',
     ];
-
     public function seekerProfile():BelongsTo
     {
         return $this->belongsTo(SeekerProfile::class,'seeker_id','id');

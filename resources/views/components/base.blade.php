@@ -21,7 +21,6 @@
                     <li><a href="{{ route('dashboardRe') }}">Dashboard</a></li>
                     <li><a href="{{ route('jobs.create') }}">Add Job</a></li>
                     <li><a href="https://docs.google.com/forms/u/0/" target="_blank">Create Exam</a></li>
-                    <li><a href="{{ route('application.index') }}">Applicant</a></li>
                     <li><a href="{{ route('user.search') }}">Seekers</a></li>
                     <li><a href="{{ route('profile.index') }}">Profile</a></li>
                     <li><a href="{{ route('logout') }}">Logout</a></li>
@@ -49,6 +48,7 @@
 
         </div>
     </div>
+
     <div class="body">
         @yield('content')
     </div>

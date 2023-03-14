@@ -5,7 +5,6 @@ namespace App\Console;
 use App\Models\JobPost;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Facades\DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,13 +21,10 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
 
             $getData = JobPost::where('deadline', '<',now())->get();
-
             foreach ($getData as $data) {
-                $data->postSkill()->detach();
                 $data->application()->delete();
                 $data->delete();
             }
-
         })->everyMinute();
 
     }

@@ -29,8 +29,18 @@ class JobPostController extends Controller
                 ->latest('created_at')
                 ->paginate(5);
 
+            $status = 'EXPIRED';
+
+            foreach ($postData as $postDate){
+                if($postDate->deadline >= now()){
+                    $status = 'FEATURED';
+                }
+
+            }
+
             return view('recruiter.post.dashboard', [
                 'posts' => $postData,
+                'status'=> $status,
             ]);
         }
         return view('recruiter.profile.create');
@@ -78,13 +88,12 @@ class JobPostController extends Controller
     public function show(string $uuid): View
     {
         $posts = JobPost::where('uuid',$uuid)
-            ->with('recruiterProfile','jobType', 'postSkill')
+            ->with('recruiterProfile','jobType', 'postSkill', 'application')
             ->first();
 
             return view('recruiter.post.show', [
                 'posts' => $posts,
             ]);
-
     }
 
     /**
@@ -115,7 +124,6 @@ class JobPostController extends Controller
     {
 
         $post = JobPost::findOrFail($id);
-
         $location = $locationSeparator->LocationPurifier($request->location);
 
         $postData = $request->validated();
@@ -136,4 +144,8 @@ class JobPostController extends Controller
     {
         $delete = JobPost::where('deadline','<', now())->delete();
     }
+
+
+
+
 }

@@ -476,5 +476,14 @@ a{
 .disgo{
     margin-right: 100px;
 }
+.links{
+    position: relative;
+    height: 20px;
+    width: 100%;
+}
 
+.links a{
+    padding: 100px;
+    margin-top: 20px;
+}
 

@@ -34,7 +34,7 @@ class SeekerController extends Controller
         }
         $query = $this->filter($request);
 
-        $postData = $query->latest('created_at')->paginate(5);
+        $postData = $query->where('deadline','>=', now())->latest('created_at')->paginate(5);
             return view('seeker.dashboard', [
                 'posts' => $postData,
                 'skill'=>$skill,

@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            $table->softDeletes();
+        Schema::create('post_skills', function (Blueprint $table) {
+            $table->unsignedBigInteger('post_id');
+            $table->unsignedBigInteger('skill_id');
+            $table->foreign('post_id')->references('id')->on('job_posts');
+            $table->foreign('skill_id')->references('id')->on('skills');
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        Schema::dropIfExists('post_skills');
     }
 };

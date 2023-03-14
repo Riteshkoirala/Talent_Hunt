@@ -3,7 +3,7 @@
 @section('content')
     <div class="sec">
         <div class="backdesign">
-            <h4>The Apllicant who have applied for the job posted by you.</h4>
+            <h4>The Applicant who have applied for this job.. </h4>
         </div>
         @foreach( $applications as $applicant)
         <div class="secbody">
@@ -16,7 +16,6 @@
                         <div class="cont">
                             <h2>{{ $applicant->seekerProfile->firstname." ". $applicant->seekerProfile->lastname}}</h2>
                             <h4>{{$applicant->jobPost->jobType->name}}</h4>
-
                             <div class="change">
                                 <p>Has applied For: {{ $applicant->jobPost->title }}</p>
                             </div>
@@ -25,20 +24,18 @@
                         </div>
                     </div>
                     <div class="btn">
-                        <a href="/cv/{{ $applicant->seekerProfile->cv }}" download>download cv</a><tb>
-                        @if($applicant->status == 0)
-                        <a class="sel" href="{{ route('selected', $applicant->id) }}">Select</a>
+                        <a href="/cv/{{ $applicant->seekerProfile->cv }}" download>download cv</a>
+                        @if($applicant->status == 'applied')
+                            <a class="sel" href="{{ route('selected', $applicant->id) }}">Select</a>
                         @else
                             <form action="{{ route('selected', $applicant->id) }}" method="get">
                                 @method('put')
                                 <input type="text" name="link"><button type="submit">Add Exam Link</button>
                             </form>
                         @endif
-
-                        <a class="del" href="#">Delete</a>
+                        <a class="del" href="{{ route('application.edit', $applicant->id) }}">Reject</a>
                     </div>
                 </div>
-
             </div>
         </div>
         @endforeach

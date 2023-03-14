@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('seeker_id');
             $table->unsignedBigInteger('post_id');
-            $table->integer('status')->default(0);
+            $table->text('status');
             $table->string('link')->default('wait');
             $table->timestamps();
             $table->foreign('seeker_id')->references('id')->on('seeker_profiles');

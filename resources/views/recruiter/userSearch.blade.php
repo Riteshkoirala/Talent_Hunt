@@ -40,7 +40,7 @@
                             <h5>{{ $user->college }}</h5>
                             <div class="change">
                                 @foreach( $user->skill as $skill)
-                                <h5>{{$skill->name}}</h5>
+                                    <h5>{{$skill->name}}</h5>
                                 @endforeach
                             </div>
                             <a href="/cv/{{ $user->cv }}" download>download cv</a>
@@ -48,10 +48,10 @@
                     </div>
                 </div>
                 @endforeach
-                    <div class="pagi">
-                        {{ $users->links() }}
-                    </div>            </div>
-
+                <div class="pagi">
+                    {{ $users->links() }}
+                </div>
+            </div>
         </div>
     </div>
 @endsection
