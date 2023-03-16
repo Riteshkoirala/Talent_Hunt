@@ -19,7 +19,7 @@
                 @error('lastname') {{ $message }} @enderror
                 <br><br>
                 <label for="location">Location: </label>
-                <input type="text" name="location" placeholder="current location" value="{{ $profile->location }}">
+                <input type="text" name="location" placeholder="Lagankhel, kathmandu OR Lagenkhel-01, kathmandu" value="{{ $profile->location }}">
                 @error('location') {{ $message }} @enderror
                 <br><br>
                 <label for="contact_number">Contact Number: </label>
@@ -31,6 +31,7 @@
                     <option value="0">active</option>
                     <option value="1">Not Active</option>
                 </select>
+                <br>
                 <label for="skill[]">Skills Required: </label>
                 <div class="double">
                     @foreach($skills as $skill)

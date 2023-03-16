@@ -27,7 +27,7 @@
                         @if($applicant->link == "wait")
                             <p>If you are selected your Exam link appear here</p>
                         @else
-                            <a class="disgo" href="{{ $applicant->link}}" target="_blank">Take Exam</a>
+                            <a class="disgo" href="{{ $applicant->link}}" target="_blank" >Take Exam</a>
                         @endif
                         <a href="{{ route('display', $applicant->jobPost->uuid) }}">View</a>
                     </div>

@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\LocationSeparator;
-use App\Models\JobPost;
 use App\Models\SeekerProfile;
 use App\Models\skill;
 use Illuminate\Http\Request;
-use PHPUnit\Event\Test\Skipped;
 
 class RecruiterController extends Controller
 {

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SeekerRequest;
 use App\Http\Services\FileCheck;
-use App\Http\Services\LocationSeparator;
 use App\Models\SeekerProfile;
 use App\Models\skill;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +35,7 @@ class SeekerProfileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(SeekerRequest $request, FileCheck $fileCheck, LocationSeparator $locationSeparator): RedirectResponse
+    public function store(SeekerRequest $request, FileCheck $fileCheck): RedirectResponse
     {
 
         $seekerData = $request->validated();
@@ -50,15 +49,13 @@ class SeekerProfileController extends Controller
             $seekerData['image'] = $imageName;
         }
 
-        $location = $locationSeparator->LocationPurifier($request->location);
         $seekerData['user_id'] = Auth::user()->id;
-        $seekerData['location'] = $location;
 
-        $seeker = SeekerProfile::query()->create($seekerData);
+        $seeker = SeekerProfile::create($seekerData);
 
         $seeker->skill()->sync($request->skill);
 
-        return redirect()->route('profiles.show', $seeker);
+        return redirect()->route('profiles.show', $seeker)->with('message','Profile has been Completed successfully...');
     }
 
 
@@ -89,7 +86,7 @@ class SeekerProfileController extends Controller
     public function edit(string $id): View
     {
         $skills = Skill::get();
-        $profile = SeekerProfile::where('id',$id)->with('user')->first();
+        $profile = SeekerProfile::where('id',Auth::user()->id)->with('user')->first();
         $selectedSkills = $profile->skill->pluck('id')->toArray();
 
         return view('seeker.profile.update',[
@@ -102,7 +99,7 @@ class SeekerProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(SeekerRequest $request, string $id, FileCheck $fileCheck, LocationSeparator $locationSeparator):RedirectResponse
+    public function update(SeekerRequest $request, string $id, FileCheck $fileCheck):RedirectResponse
     {
 
         $seeker = SeekerProfile::findOrFail($id);
@@ -116,17 +113,14 @@ class SeekerProfileController extends Controller
             $imageName = $fileCheck->checkPhoto($request);
             $seekerData['image'] = $imageName;
         }
-
-        $location = $locationSeparator->LocationPurifier($request->location);
-        $seekerData['location'] = $location;
+        $seekerData['status']= $request->status;
         $seeker->update($seekerData);
-
         $seeker->user->update([
            'email'=>$request->email,
         ]);
 
         $seeker->skill()->sync($request->input('skill', []));
-        return redirect()->route('profiles.show', $seeker);
+        return redirect()->route('profiles.show', $seeker)->with('message','Profile has been updated successfully...');
     }
 
     /**

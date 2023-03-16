@@ -26,14 +26,14 @@
                     <div class="btn">
                         <a href="/cv/{{ $applicant->seekerProfile->cv }}" download>download cv</a>
                         @if($applicant->status == 'applied')
-                            <a class="sel" href="{{ route('selected', $applicant->id) }}">Select</a>
+                            <a class="sel" href="{{ route('selected', $applicant->id) }}" onclick=" return action()">Select</a>
                         @else
                             <form action="{{ route('selected', $applicant->id) }}" method="get">
                                 @method('put')
                                 <input type="text" name="link"><button type="submit">Add Exam Link</button>
                             </form>
                         @endif
-                        <a class="del" href="{{ route('application.edit', $applicant->id) }}">Reject</a>
+                        <a class="del" href="{{ route('application.edit', $applicant->id) }}" onclick=" return action()" >Reject</a>
                     </div>
                 </div>
             </div>
@@ -41,4 +41,9 @@
         @endforeach
     </div>
 @endsection
+<script>
+    function action(){
+        return confirm('Are you sure you want to perform this action?');
+    }
+</script>
 

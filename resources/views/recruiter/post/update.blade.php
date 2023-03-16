@@ -14,7 +14,7 @@
                 </p>
                 <br><br>
                 <label for="location">Location: </label>
-                <input type="text" name="location" placeholder="company location" value="{{ $post->location }}">
+                <input type="text" name="location" placeholder="Lagankhel, kathmandu OR Lagenkhel-01, kathmandu" value="{{ $post->location }}">
                 <p>
                     @error('location'){{ $message }}@enderror
                 </p>

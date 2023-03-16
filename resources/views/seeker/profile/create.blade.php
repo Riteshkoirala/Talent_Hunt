@@ -15,14 +15,14 @@
                 @error('lastname') {{ $message }} @enderror
                 <br><br>
                 <label for="location">Location: </label>
-                <input type="text" name="location" placeholder="current location">
+                <input type="text" name="location" placeholder="Lagankhel, kathmandu OR Lagenkhel-01, kathmandu">
                 @error('location') {{ $message }} @enderror
                 <br><br>
                 <label for="contact_number">Contact Number: </label>
                 <input type="text" name="contact_number" placeholder="9812675211">
                 @error('contact_number') {{ $message }} @enderror
                 <br><br>
-                <label for="skill[]">Skills that you have: </label>
+                <label for="skill">Skills that you have: </label>
                 <div class="double">
                     @foreach($skills as $skill)
                         <input type="checkbox" name="skill[]" value="{{ $skill->id }}">

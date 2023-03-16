@@ -2,6 +2,9 @@
 
 @section('content')
     <div class="bodys">
+        @if(Session::has('message'))
+            <p>{{ Session::get('message') }}</p>
+        @endif
         <div class="img">
             <div class="imgs">
                 <img class="imgs" src="{{asset('/images/recruiter/'.$profile->image)}}" alt="Company Image">
@@ -19,6 +22,6 @@
             <p>{{ $profile->detail }}</p>
         </div>
     </div>
-        <a class="update" href="{{ route('profile.edit', $profile->id) }}">Update Profile</a>
+        <a class="update" href="{{ route('profile.edit', 'updatingUser') }}">Update Profile</a>
 @endsection
 

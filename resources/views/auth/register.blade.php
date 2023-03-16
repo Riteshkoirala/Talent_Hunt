@@ -6,7 +6,6 @@
         <div class="text">
             <div class="logs">
                 <h2>SIGN UP</h2>
-
                 @if( session('errors'))
                     {{ $errors }}
                 @endif
@@ -36,7 +35,6 @@
                     <p class="tex">OR SIGN UP WITH</p>
                     <h1><a class="goo" href="{{ route('create') }}">G</a></h1>
                 </form>
-
             </div>
         </div>
     </div>

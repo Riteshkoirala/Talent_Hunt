@@ -25,7 +25,7 @@ class SeekerRequest extends FormRequest
         return [
             'firstname' => 'max:40',
             'lastname' => 'max:40',
-            'location' => 'regex:/^[a-zA-Z0-9\-, ]+$/',
+            'location' => 'regex:/^[a-zA-Z0-9-]+\s*,\s*[a-zA-Z0-9-]+$/i',
             'contact_number' => 'regex:/^[0-9\+]+$/',
             'skill' => 'min:3',
             'qualification' => 'max:200',
@@ -35,6 +35,13 @@ class SeekerRequest extends FormRequest
             'about'=>'max:200',
             'description'=>'max:200',
             'experience'=>'max:200',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'location' => 'location format:- (city, state) or (city-code, state-code)',
         ];
     }
 }

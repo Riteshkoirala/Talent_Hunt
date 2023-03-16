@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\JobPostRequest;
-use App\Http\Services\LocationSeparator;
 use App\Models\JobPost;
 use App\Models\JobType;
 use App\Models\RecruiterProfile;
@@ -29,18 +28,8 @@ class JobPostController extends Controller
                 ->latest('created_at')
                 ->paginate(5);
 
-            $status = 'EXPIRED';
-
-            foreach ($postData as $postDate){
-                if($postDate->deadline >= now()){
-                    $status = 'FEATURED';
-                }
-
-            }
-
             return view('recruiter.post.dashboard', [
                 'posts' => $postData,
-                'status'=> $status,
             ]);
         }
         return view('recruiter.profile.create');
@@ -63,17 +52,14 @@ class JobPostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(JobPostRequest $request, LocationSeparator $locationSeparator):RedirectResponse
+    public function store(JobPostRequest $request):RedirectResponse
     {
 
         $recruiterId = RecruiterProfile::where('user_id',Auth::User()->id)->first();
 
-        $location = $locationSeparator->LocationPurifier($request->location);
-
         $postData = $request->validated();
         $postData['uuid'] = Str::uuid();
         $postData['recruiter_id'] = $recruiterId->id;
-        $postData['location'] = $location;
 
         $post = JobPost::create($postData);
         $post->postSkill()->sync($request->skill);
@@ -87,13 +73,18 @@ class JobPostController extends Controller
      */
     public function show(string $uuid): View
     {
+
         $posts = JobPost::where('uuid',$uuid)
             ->with('recruiterProfile','jobType', 'postSkill', 'application')
             ->first();
 
+        if($posts) {
             return view('recruiter.post.show', [
                 'posts' => $posts,
             ]);
+        }
+            return abort(404);
+
     }
 
     /**
@@ -120,20 +111,18 @@ class JobPostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(JobPostRequest $request, string $id, LocationSeparator $locationSeparator):RedirectResponse
+    public function update(JobPostRequest $request, string $id):RedirectResponse
     {
 
         $post = JobPost::findOrFail($id);
-        $location = $locationSeparator->LocationPurifier($request->location);
 
         $postData = $request->validated();
-        $postData['location'] = $location;
 
         $post->update($postData);
 
         $post->postSkill()->sync($request->skill);
 
-        return redirect()->route('jobs.show', $post->uuid);
+        return redirect()->route('jobs.show', $post->uuid)->with('message', 'The post has been successfully updated');
 
     }
 

@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RecruiterRequest;
 use App\Http\Services\FileCheck;
-use App\Http\Services\LocationSeparator;
 use App\Models\RecruiterProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class RecruiterProfileController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
         $profile = RecruiterProfile::where('user_id', Auth::user()->id)->first();
 
@@ -30,7 +30,7 @@ class RecruiterProfileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(RecruiterRequest $request, FileCheck $fileCheck, LocationSeparator $locationSeparator): RedirectResponse
+    public function store(RecruiterRequest $request, FileCheck $fileCheck): RedirectResponse
     {
         $imageName= '';
 
@@ -38,25 +38,22 @@ class RecruiterProfileController extends Controller
             $imageName = $fileCheck->checkPhoto($request);
         }
 
-        $location = $locationSeparator->LocationPurifier($request->location);
-
         $recruiterData = $request->validated();
 
         $recruiterData['user_id'] = Auth::user()->id;
-        $recruiterData['location'] = $location;
         $recruiterData['image'] = $imageName;
 
         $recruiter = RecruiterProfile::query()->create($recruiterData);
 
-        return redirect()->route('profile.index');
+        return redirect()->route('profile.index')->with('message','The profile has been Completed...');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id): View
     {
-        $profile = RecruiterProfile::where('id',$id)->with('user')->first();
+        $profile = RecruiterProfile::where('id',Auth::user()->id)->with('user')->first();
         return view('recruiter.profile.update',[
             'profile'=>$profile,
         ]);
@@ -65,7 +62,7 @@ class RecruiterProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(RecruiterRequest $request, string $id, FileCheck $fileCheck, LocationSeparator $locationSeparator):RedirectResponse
+    public function update(RecruiterRequest $request, string $id, FileCheck $fileCheck):RedirectResponse
     {
         $recruiterData = $request->validated();
 
@@ -76,17 +73,15 @@ class RecruiterProfileController extends Controller
 
         $profile = RecruiterProfile::findOrFail($id);
 
-        $location = $locationSeparator->LocationPurifier($request->location);
 
         $recruiterData['user_id'] = Auth::user()->id;
-        $recruiterData['location'] = $location;
         $profile->update($recruiterData);
 
         $profile->user->update([
             'email'=>$request->email,
         ]);
 
-        return redirect()->route('profile.index');
+        return redirect()->route('profile.index')->with('message','The profile has been Updated...');
     }
 
     /**

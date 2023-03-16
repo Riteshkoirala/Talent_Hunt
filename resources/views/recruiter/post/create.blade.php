@@ -14,13 +14,13 @@
                 </p>
                 <br><br>
                 <label for="location">Location: </label>
-                <input type="text" name="location" placeholder="Lagankhel, Kathmandu" value="{{ old('location') }}">
+                <input type="text" name="location" placeholder="Lagankhel, kathmandu OR Lagenkhel-01, kathmandu" value="{{ old('location') }}">
                 <p>
                     @error('location'){{ $message }} @enderror
                 </p>
                 <br><br>
                 <label for="deadline">Deadline: </label>
-                <input type="datetime-local" name="deadline"  value="{{ old('deadline') }}">
+                <input type="datetime-local" name="deadline"   value="{{ old('deadline') }}">
                 <p>
                     @error('deadline'){{ $message }}@enderror
                 </p>

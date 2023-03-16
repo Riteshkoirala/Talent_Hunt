@@ -2,6 +2,9 @@
 
 @section('content')
     <div class="bodys">
+        @if(Session::has('message'))
+            <p>{{ Session::get('message') }}</p>
+        @endif
         <div class="img">
             <div class="imgs">
                 <img class="imgs" src="{{asset('/images/recruiter/'.$posts->recruiterProfile->image)}}">
@@ -20,7 +23,7 @@
             <div class="skill">
                 <h2>Skills:</h2>
                 @foreach($posts->postSkill as $skills)
-                <p>{{ $skills->name }}</p>
+                    <p>{{ $skills->name }}</p>
                 @endforeach
             </div>
         </div>
@@ -50,9 +53,26 @@
                     You have already applied for this job
                 @endif
             @empty
-                <a class="update" href="{{ route('apply', $posts->uuid) }}">APPLY</a>
+                <a class="update" id="apply" href="{{ route('apply',$posts->uuid) }}" onclick="return ruleApply()" data-id="{{ $posts->uuid }}">APPLY</a>
             @endforelse
         @endif
     </div>
 @endsection
+<script>
+    function ruleApply(){
+        return confirm('Do you sure to apply for this job {{ $posts->title }}?');
+    }
+
+    {{--function clickFunc() {--}}
+    {{--    let applyBtn = document.getElementById('apply');--}}
+    {{--    let postId = applyBtn.getAttribute('data-id');--}}
+    {{--    let text = "Press a button!\nEither OK or Cancel.";--}}
+    {{--    if (confirm(text) == true) {--}}
+    {{--        let link = '{{ route('apply', ':id') }}';--}}
+    {{--        link = link.replace(':id', postId);--}}
+    {{--        apply.setAttribute("href", link);--}}
+    {{--    }--}}
+    {{--}--}}
+
+</script>
 

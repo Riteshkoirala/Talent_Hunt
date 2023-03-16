@@ -13,7 +13,7 @@
                 @enderror
                 <br><br>
                 <label for="location">Location: </label>
-                <input type="text" name="location" placeholder="company location">
+                <input type="text" name="location" placeholder="Lagankhel, kathmandu OR Lagenkhel-01, kathmandu">
                 @error('location')
                    {{ $message }}
                 @enderror

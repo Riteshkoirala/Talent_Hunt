@@ -8,10 +8,8 @@ use App\Models\JobType;
 use App\Models\RecruiterProfile;
 use App\Models\SeekerProfile;
 use App\Models\skill;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class SeekerController extends Controller
 {

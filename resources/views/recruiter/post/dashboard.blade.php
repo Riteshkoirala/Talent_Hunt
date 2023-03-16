@@ -25,12 +25,16 @@
                                         <h5>{{ $skill->name }}</h5>
                                     @endforeach
                                 </div>
-                                <h4>{{ $status }}</h4>
+                                @if($post->deadline >= now())
+                                    <h4 >FEATURED</h4>
+                                @else
+                                    <h4 class="de">EXPIRED</h4>
+                                @endif
                                 <h5>{{ $post->recruiterProfile->company_name }}</h5>
                                 <h5>Apply before:{{ $post->deadline }}</h5>
                             </div>
                         </div>
-                        <a href="{{ route('jobs.show', $post->uuid ) }}">View</a>
+                        <a href="{{ route('jobs.show',$post->uuid) }}">View</a>
                     </div>
                 </div>
             </div>

@@ -25,7 +25,7 @@ class JobPostRequest extends FormRequest
 
         return [
             'title'=>'max:50',
-            'location' => 'regex:/^[a-zA-Z0-9\-, ]+$/',
+            'location' => 'regex:/^[a-zA-Z0-9-]+\s*,\s*[a-zA-Z0-9-]+$/i',
             'deadline'=>'after_or_equal:now',
             'skill'=>'min:3',
             'type_id'=>'required',
@@ -35,6 +35,13 @@ class JobPostRequest extends FormRequest
             'description'=>'max:200',
             'responsibility'=>'max:200',
             'benefit'=>'max:200',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'location' => 'location format:- (city, state) or (city-code, state-code)',
         ];
     }
 }

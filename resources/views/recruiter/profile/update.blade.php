@@ -14,7 +14,7 @@
                 <input type="text" name="company_name" placeholder="Buddha" value="{{ $profile->company_name }}">
                 <br><br>
                 <label for="location">Location: </label>
-                <input type="text" name="location" placeholder="company location" value="{{$profile->location}}">
+                <input type="text" name="location" placeholder="Lagankhel, kathmandu OR Lagenkhel-01, kathmandu" value="{{$profile->location}}">
                 @error('location')
                   {{ $message }}
                 @enderror

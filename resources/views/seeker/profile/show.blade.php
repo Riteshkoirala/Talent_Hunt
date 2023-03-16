@@ -2,6 +2,9 @@
 
 @section('content')
     <div class="bodys">
+        @if(Session::has('message'))
+            <p>{{ Session::get('message') }}</p>
+        @endif
         <div class="img">
             <div class="imgs">
                 <img  class="imgs" src="{{asset('/images/seeker/'.$profile->image)}}">
